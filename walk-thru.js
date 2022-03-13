@@ -295,8 +295,8 @@ class SceneCamera {
     this.into = towards.unit();
     //
     // TO-DO: Fix this!
-    this.right = null;
-    this.up = null;
+    this.right = this.into.cross(upward.unit());
+    this.up = this.right.cross(this.into);
   }
 
   project(aPoint) {
