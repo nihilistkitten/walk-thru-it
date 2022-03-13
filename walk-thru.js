@@ -311,10 +311,19 @@ class SceneCamera {
     //    projection onto the x=0 left wall. **
 
     // Compute a 2D projected point and its depth.
+    var pointAsVec = aPoint.minus(this.center);
+    var depth = this.into.dot(pointAsVec);
+    var projection = this.center.plus(pointAsVec.div(depth));
+
+    var origin = this.center.plus(this.into);
+    var projectionVec = projection.minus(origin);
+    var projectionX = projectionVec.dot(this.right);
+    var projectionY = projectionVec.dot(this.up);
+
     const result = {
       point: aPoint,
-      projection: new Point2d(aPoint.y, aPoint.z),
-      distance: aPoint.x,
+      projection: new Point2d(projectionX, projectionY),
+      distance: depth,
     };
 
     return result;
