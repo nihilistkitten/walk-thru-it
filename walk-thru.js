@@ -1,3 +1,4 @@
+import "priority-queue.js";
 //
 // walk-thru.js
 //
@@ -235,6 +236,43 @@ class WalkThru {
       // For now, one page per shot.
       startNewPage(document);
 
+      projectedEdges = [];
+
+      for (let object of objects) {
+        // Since no objects clip into each other we create a new queue for each object's edges
+        var queue = PriorityQueue();
+
+        for (let edge of object.allEdges()) {
+          queue.push(edge);
+
+          while (!queue.isEmpty()) {
+            e = queue.pop();
+            // List of points where e gets intersected
+            splits = [];
+
+            for (let e2 of projectedEdges) {
+              var intersectionPoint = e.intersects(e2);
+
+              if (intersectionPoint) {
+                splits.push(intersectionPoint);
+              }
+            }
+
+            var e0 =  e.vertex(0, object);
+            var e1 =  e.vertex(1, object);
+            var p0 = e.vertex(0, object);
+
+            for (let alpha in edges) {
+              var pointAsVec = e1.minus(e0);
+              var p1 = e0 + alpha*(pointAsVec);
+
+              projectedEdges.push;
+            }
+          }
+        }
+      }
+
+
       // Compute projected vertex information and draw the lines of
       // each edge.
       for (let object of objects) {
@@ -266,6 +304,7 @@ class WalkThru {
           document.line(p0.x, p0.y, p1.x, p1.y);
         }
       }
+
     }
   }
 }
