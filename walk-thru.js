@@ -243,27 +243,80 @@ class WalkThru {
 
         // Draw each edge, projected, within the PDF.
         for (let edge of object.allEdges()) {
+
           //
           // Get the vertex information for each endpoint.
-          const v0 = edge.vertex(0, object);
-          const v1 = edge.vertex(1, object);
+          const v00 = edge.vertex(0, object);
+          const v01 = edge.vertex(1, object);
           //
           // Get the projected position of each.
-          const pp0 = pvs.get(v0).projection;
-          const pp1 = pvs.get(v1).projection;
+          const pp0 = pvs.get(v00).projection;
+          const pp1 = pvs.get(v01).projection;
           //
           // Locate each on the page.
           const p0 = toPDFcoords(pp0);
           const p1 = toPDFcoords(pp1);
-          //
-          // Draw blue-green dots and a line for the edge.
-          document.setFillColor(0, 96, 128);
-          document.circle(p0.x, p0.y, 0.35, "F");
-          document.circle(p1.x, p1.y, 0.35, "F");
-          //
-          document.setLineWidth(0.1);
-          document.setDrawColor(25, 25, 25);
-          document.line(p0.x, p0.y, p1.x, p1.y);
+
+          for (let object1 of objects) {
+            let pvs1 = object1.projectVertices(camera);
+
+            for (let edge1 of object1.allEdges()) {
+
+              // Get the vertex information for each endpoint.
+              const v10 = edge1.vertex(0, object1);
+              const v11 = edge1.vertex(1, object1);
+              //
+              // Get the projected position of each.
+              const pq0 = pvs1.get(v10).projection;
+              const pq1 = pvs1.get(v11).projection;
+              //
+              // Locate each on the page.
+              const q0 = toPDFcoords(pq0);
+              const q1 = toPDFcoords(pq1);
+
+              // scalar position of break point
+              var scalar_p = intersection(p0, p1, q0, q1);
+
+              //
+              // Draw blue-green dots edge endpoints.
+              document.setFillColor(0, 96, 128);
+              document.circle(p0.x, p0.y, 0.35, "F");
+              document.circle(p1.x, p1.y, 0.35, "F");
+
+              // if break point is between 0.0 and 1.0 then lines intersect
+              if (scalar_p) {
+                // find break point
+                var breakpoint = p0.combo(scalar_p, p1);
+
+                // draw red dot for intersection point
+                document.setFillColor(1, 0, 0);
+                document.circle(breakpoint.x, breakpoint.y, 0.35, "F");
+                // draw line between endpoints between and breakpoint
+                document.setLineWidth(0.1);
+                document.setDrawColor(25, 25, 25);
+                document.line(p0.x, p0.y, breakpoint.x, breakpoint.y);
+                document.setLineWidth(0.1);
+                document.setDrawColor(25, 25, 25);
+                document.line(breakpoint.x, breakpoint.y, p1.x, p1.y);
+              }
+              // no breakpoint found, just draw line between endpoints
+              else {
+                document.setLineWidth(0.1);
+                document.setDrawColor(25, 25, 25);
+                document.line(p0.x, p0.y, p1.x, p1.y);
+              }
+
+            }
+          }
+          // //
+          // // Draw blue-green dots and a line for the edge.
+          // document.setFillColor(0, 96, 128);
+          // document.circle(p0.x, p0.y, 0.35, "F");
+          // document.circle(p1.x, p1.y, 0.35, "F");
+          // //
+          // document.setLineWidth(0.1);
+          // document.setDrawColor(25, 25, 25);
+          // document.line(p0.x, p0.y, p1.x, p1.y);
         }
       }
     }
