@@ -249,8 +249,11 @@ class WalkThru {
           const v01 = edge.vertex(1, object);
           //
           // Get the projected position of each.
-          const pp0 = pvs.get(v00).projection;
-          const pp1 = pvs.get(v01).projection;
+          const p0map = pvs.get(v00);
+          const p1map = pvs.get(v01);
+
+          const pp0 = p0map.projection;
+          const pp1 = p1map.projection;
 
           var breakpoints = [0, 1];
 
@@ -276,32 +279,94 @@ class WalkThru {
 
             breakpoints.sort();
 
+            const dp0 = p0map.depth;
+            const dp1 = p1map.depth;
+
             var p0;
-            var p1 = toPDFcoords(pp0.combo(breakpoints[0], pp1));
+            var p1 = pp0;
+
+            var d0;
+            var d1 = dp0;
 
             for (var i = 1; i < breakpoints.length; i++) {
               p0 = p1;
-              p1 = toPDFcoords(pp0.combo(breakpoints[i], pp1));
+              p1 = pp0.combo(breakpoints[i], pp1);
 
-              if (i + 1 != breakpoints.length) {
-                // if not the last item in breakpoints, p1 isn't one of the
-                // original endpoints
+              d0 = d1;
+              // depth at breakpoint i
+              d1 = (dp0 * breakpoints[i] + dp1 * (1 - breakpoints[i])) / 2;
 
-                // draw red dot for intersection point
-                document.setFillColor(1, 0, 0);
-                document.circle(p1.x, p1.y, 0.35, "F");
-              }
+              var mid = p0.combo(0.5, p1);
+              var depth = (d0 + d1) / 2;
 
-              // draw line
-              document.setLineWidth(0.1);
-              document.setDrawColor(25, 25, 25);
-              document.line(p0.x, p0.y, p1.x, p1.y);
+							if rayCast(mid, depth, objects) {
+								// draw line
+								document.setLineWidth(0.1);
+								document.setDrawColor(25, 25, 25);
+								document.line(p0.x, p0.y, p1.x, p1.y);
+							}
             }
           }
         }
       }
     }
   }
+}
+
+// return whether a face intersects a ray casted from the origin through
+// (px, py, 1) with smaller depth
+function rayCast(p, depth, objects) {
+  var p3d = Point3d(p.x, p.y, 1);
+  var origin = Point3d(0, 0, 0);
+  var castVec = origin.minus(p3d);
+
+  for (let object in objects) {
+    for (let face in object.allFaces()) {
+      var q0 = face.vertex(0, object);
+      var q1 = face.vertex(1, object);
+      var q2 = face.vertex(2, object);
+
+      var v1 = q1.minus(q0).norm();
+      var v2 = q2.minus(q0).norm();
+
+      var n = v1.cross(v2);
+
+      var longDelta = q0.minus(origin).dot(n);
+      var shortDelta = castVec.dot(n);
+
+      var q = origin.plus(d.times(longDelta / delta));
+
+      // todo: if this doesn't work jim has a different method
+      var littleH = q.minus(q0).dot(v2.perp());
+      var bigH = q1.minus(q0).dot(v2.perp());
+
+      var alpha1 = littleH / bigH;
+
+      // computer alpha2
+      var littleH = q.minus(q0).dot(v1.perp());
+      var bigH = q2.minus(q0).dot(v1.perp());
+
+      var alpha2 = littleH / bigH;
+
+      var alpha0 = 1 - (alpha1 + alpha2);
+
+			if (alpha0 > 0 || alpha0 < 1) ||
+				 (alpha1 > 0 || alpha1 < 1) ||
+				 (alpha2 > 0 || alpha2 < 1)
+			{
+				// the intersection exists
+
+				// compute interpolated depth
+				var depthQ = q0.z + alpha1 * (q1.z - q0.z) + alpha2 * (q2.z - q0.z);
+				if (depthQ < depth) {
+					// found a point closer to the origin
+					return False;
+				}
+			}
+    }
+  }
+
+	return True;
 }
 
 class SceneCamera {
