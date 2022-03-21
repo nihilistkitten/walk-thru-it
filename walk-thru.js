@@ -269,10 +269,7 @@ class WalkThru {
               // Get the projected position of each.
               const pq0 = pvs1.get(v10).projection;
               const pq1 = pvs1.get(v11).projection;
-              //
-              // Locate each on the page.
-              const q0 = toPDFcoords(pq0);
-              const q1 = toPDFcoords(pq1);
+
 
               // scalar position of break point
               var scalar_p = intersection(pp0, pp1, pq0, pq1);
@@ -288,16 +285,20 @@ class WalkThru {
                 // find break point
                 var breakpoint = pp0.combo(scalar_p, pp1);
 
+                //
+                // Locate each on the page.
+                const breakpoint0 = toPDFcoords(breakpoint);
+
                 // draw red dot for intersection point
                 document.setFillColor(1, 0, 0);
-                document.circle(breakpoint.x, breakpoint.y, 0.35, "F");
+                document.circle(breakpoint0.x, breakpoint0.y, 0.35, "F");
                 // draw line between endpoints between and breakpoint
                 document.setLineWidth(0.1);
                 document.setDrawColor(25, 25, 25);
-                document.line(p0.x, p0.y, breakpoint.x, breakpoint.y);
+                document.line(p0.x, p0.y, breakpoint0.x, breakpoint0.y);
                 document.setLineWidth(0.1);
                 document.setDrawColor(25, 25, 25);
-                document.line(breakpoint.x, breakpoint.y, p1.x, p1.y);
+                document.line(breakpoint0.x, breakpoint0.y, p1.x, p1.y);
               }
               // no breakpoint found, just draw line between endpoints
               else {
