@@ -286,7 +286,7 @@ class WalkThru {
               // if break point is between 0.0 and 1.0 then lines intersect
               if (scalar_p) {
                 // find break point
-                var breakpoint = p0.combo(scalar_p, p1);
+                var breakpoint = pp0.combo(scalar_p, pp1);
 
                 // draw red dot for intersection point
                 document.setFillColor(1, 0, 0);
