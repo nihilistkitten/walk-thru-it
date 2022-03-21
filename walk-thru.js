@@ -306,18 +306,8 @@ class WalkThru {
                 document.setDrawColor(25, 25, 25);
                 document.line(p0.x, p0.y, p1.x, p1.y);
               }
-
             }
           }
-          // //
-          // // Draw blue-green dots and a line for the edge.
-          // document.setFillColor(0, 96, 128);
-          // document.circle(p0.x, p0.y, 0.35, "F");
-          // document.circle(p1.x, p1.y, 0.35, "F");
-          // //
-          // document.setLineWidth(0.1);
-          // document.setDrawColor(25, 25, 25);
-          // document.line(p0.x, p0.y, p1.x, p1.y);
         }
       }
     }
