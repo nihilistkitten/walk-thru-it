@@ -299,12 +299,12 @@ class WalkThru {
               var mid = p0.combo(0.5, p1);
               var depth = (d0 + d1) / 2;
 
-							if rayCast(mid, depth, objects) {
-								// draw line
-								document.setLineWidth(0.1);
-								document.setDrawColor(25, 25, 25);
-								document.line(p0.x, p0.y, p1.x, p1.y);
-							}
+              if (rayCast(mid, depth, objects)) {
+                // draw line
+                document.setLineWidth(0.1);
+                document.setDrawColor(25, 25, 25);
+                document.line(p0.x, p0.y, p1.x, p1.y);
+              }
             }
           }
         }
@@ -316,8 +316,8 @@ class WalkThru {
 // return whether a face intersects a ray casted from the origin through
 // (px, py, 1) with smaller depth
 function rayCast(p, depth, objects) {
-  var p3d = Point3d(p.x, p.y, 1);
-  var origin = Point3d(0, 0, 0);
+  var p3d = new Point3d(p.x, p.y, 1);
+  var origin = new Point3d(0, 0, 0);
   var castVec = origin.minus(p3d);
 
   for (let object in objects) {
@@ -350,23 +350,27 @@ function rayCast(p, depth, objects) {
 
       var alpha0 = 1 - (alpha1 + alpha2);
 
-			if (alpha0 > 0 || alpha0 < 1) ||
-				 (alpha1 > 0 || alpha1 < 1) ||
-				 (alpha2 > 0 || alpha2 < 1)
-			{
-				// the intersection exists
+      if (
+        alpha0 > 0 &&
+        alpha0 < 1 &&
+        alpha1 > 0 &&
+        alpha1 < 1 &&
+        alpha2 > 0 &&
+        alpha2 < 1
+      ) {
+        // the intersection exists
 
-				// compute interpolated depth
-				var depthQ = q0.z + alpha1 * (q1.z - q0.z) + alpha2 * (q2.z - q0.z);
-				if (depthQ < depth) {
-					// found a point closer to the origin
-					return False;
-				}
-			}
+        // compute interpolated depth
+        var depthQ = q0.z + alpha1 * (q1.z - q0.z) + alpha2 * (q2.z - q0.z);
+        if (depthQ < depth) {
+          // found a point closer to the origin
+          return False;
+        }
+      }
     }
   }
 
-	return True;
+  return True;
 }
 
 class SceneCamera {
