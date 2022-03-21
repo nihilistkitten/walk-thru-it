@@ -243,7 +243,6 @@ class WalkThru {
 
         // Draw each edge, projected, within the PDF.
         for (let edge of object.allEdges()) {
-
           //
           // Get the vertex information for each endpoint.
           const v00 = edge.vertex(0, object);
@@ -252,16 +251,13 @@ class WalkThru {
           // Get the projected position of each.
           const pp0 = pvs.get(v00).projection;
           const pp1 = pvs.get(v01).projection;
-          //
-          // Locate each on the page.
-          const p0 = toPDFcoords(pp0);
-          const p1 = toPDFcoords(pp1);
+
+          var breakpoints = [0, 1];
 
           for (let object1 of objects) {
             let pvs1 = object1.projectVertices(camera);
 
             for (let edge1 of object1.allEdges()) {
-
               // Get the vertex information for each endpoint.
               const v10 = edge1.vertex(0, object1);
               const v11 = edge1.vertex(1, object1);
@@ -273,38 +269,33 @@ class WalkThru {
               // scalar position of break point
               var scalar_p = intersection(pp0, pp1, pq0, pq1);
 
-              //
-              // Draw blue-green dots edge endpoints.
-              document.setFillColor(0, 96, 128);
-              document.circle(p0.x, p0.y, 0.35, "F");
-              document.circle(p1.x, p1.y, 0.35, "F");
-
-              // if break point is between 0.0 and 1.0 then lines intersect
               if (scalar_p) {
-                // find break point
-                var breakpoint = pp0.combo(scalar_p, pp1);
+                breakpoints.push(scalar_p);
+              }
+            }
 
-                //
-                // Locate each on the page.
-                const breakpoint0 = toPDFcoords(breakpoint);
+            breakpoints.sort();
+
+            var p0;
+            var p1 = toPDFcoords(pp0.combo(breakpoints[0], pp1));
+
+            for (var i = 1; i < breakpoints.length; i++) {
+              p0 = p1;
+              p1 = toPDFcoords(pp0.combo(breakpoints[i], pp1));
+
+              if (i + 1 != breakpoints.length) {
+                // if not the last item in breakpoints, p1 isn't one of the
+                // original endpoints
 
                 // draw red dot for intersection point
                 document.setFillColor(1, 0, 0);
-                document.circle(breakpoint0.x, breakpoint0.y, 0.35, "F");
-                // draw line between endpoints between and breakpoint
-                document.setLineWidth(0.1);
-                document.setDrawColor(25, 25, 25);
-                document.line(p0.x, p0.y, breakpoint0.x, breakpoint0.y);
-                document.setLineWidth(0.1);
-                document.setDrawColor(25, 25, 25);
-                document.line(breakpoint0.x, breakpoint0.y, p1.x, p1.y);
+                document.circle(p1.x, p1.y, 0.35, "F");
               }
-              // no breakpoint found, just draw line between endpoints
-              else {
-                document.setLineWidth(0.1);
-                document.setDrawColor(25, 25, 25);
-                document.line(p0.x, p0.y, p1.x, p1.y);
-              }
+
+              // draw line
+              document.setLineWidth(0.1);
+              document.setDrawColor(25, 25, 25);
+              document.line(p0.x, p0.y, p1.x, p1.y);
             }
           }
         }
