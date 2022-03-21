@@ -270,7 +270,6 @@ class WalkThru {
               const pq0 = pvs1.get(v10).projection;
               const pq1 = pvs1.get(v11).projection;
 
-
               // scalar position of break point
               var scalar_p = intersection(pp0, pp1, pq0, pq1);
 
