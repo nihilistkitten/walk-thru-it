@@ -287,7 +287,7 @@ class WalkThru {
                 // if not the last item in breakpoints, p1 isn't one of the
                 // original endpoints
 
-								// draw red dot for intersection point
+                // draw red dot for intersection point
                 document.setFillColor(1, 0, 0);
                 document.circle(p1.x, p1.y, 0.35, "F");
               }
