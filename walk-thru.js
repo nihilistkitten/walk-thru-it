@@ -275,7 +275,7 @@ class WalkThru {
               const q1 = toPDFcoords(pq1);
 
               // scalar position of break point
-              var scalar_p = intersection(p0, p1, q0, q1);
+              var scalar_p = intersection(pp0, pp1, pq0, pq1);
 
               //
               // Draw blue-green dots edge endpoints.
