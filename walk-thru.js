@@ -294,7 +294,6 @@ class SceneCamera {
     this.center = center;
     this.into = towards.unit();
     //
-    // TO-DO: Fix this!
     this.right = this.into.cross(upward.unit());
     this.up = this.right.cross(this.into);
   }
@@ -303,12 +302,6 @@ class SceneCamera {
     //
     // Projects a 3D point into 2D with perspective using this camera.
     //
-
-    //
-    // TO-DO: Fix this!
-
-    // ** Right now this just performs an orthonormal
-    //    projection onto the x=0 left wall. **
 
     // Compute a 2D projected point and its depth.
     var pointAsVec = aPoint.minus(this.center);
