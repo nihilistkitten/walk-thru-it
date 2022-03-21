@@ -276,35 +276,35 @@ class WalkThru {
                 breakpoints.push(scalar_p);
               }
             }
+          }
 
-            breakpoints.sort();
+          breakpoints.sort();
 
-            const dp0 = p0map.depth;
-            const dp1 = p1map.depth;
+          const dp0 = p0map.depth;
+          const dp1 = p1map.depth;
 
-            var p0;
-            var p1 = pp0;
+          var p0;
+          var p1 = pp0;
 
-            var d0;
-            var d1 = dp0;
+          var d0;
+          var d1 = dp0;
 
-            for (var i = 1; i < breakpoints.length; i++) {
-              p0 = p1;
-              p1 = pp0.combo(breakpoints[i], pp1);
+          for (var i = 1; i < breakpoints.length; i++) {
+            p0 = p1;
+            p1 = pp0.combo(breakpoints[i], pp1);
 
-              d0 = d1;
-              // depth at breakpoint i
-              d1 = (dp0 * breakpoints[i] + dp1 * (1 - breakpoints[i])) / 2;
+            d0 = d1;
+            // depth at breakpoint i
+            d1 = (dp0 * breakpoints[i] + dp1 * (1 - breakpoints[i])) / 2;
 
-              var mid = p0.combo(0.5, p1);
-              var depth = (d0 + d1) / 2;
+            var mid = p0.combo(0.5, p1);
+            var depth = (d0 + d1) / 2;
 
-              if (rayCast(mid, depth, objects)) {
-                // draw line
-                document.setLineWidth(0.1);
-                document.setDrawColor(25, 25, 25);
-                document.line(p0.x, p0.y, p1.x, p1.y);
-              }
+            if (rayCast(mid, depth, objects)) {
+              // draw line
+              document.setLineWidth(0.1);
+              document.setDrawColor(25, 25, 25);
+              document.line(p0.x, p0.y, p1.x, p1.y);
             }
           }
         }
@@ -320,31 +320,31 @@ function rayCast(p, depth, objects) {
   var origin = new Point3d(0, 0, 0);
   var castVec = origin.minus(p3d);
 
-  for (let object in objects) {
-    for (let face in object.allFaces()) {
-      var q0 = face.vertex(0, object);
-      var q1 = face.vertex(1, object);
-      var q2 = face.vertex(2, object);
+  for (let object of objects) {
+    for (let face of object.allFaces()) {
+      var q0 = face.vertex(0, object).position;
+      var q1 = face.vertex(1, object).position;
+      var q2 = face.vertex(2, object).position;
 
-      var v1 = q1.minus(q0).norm();
-      var v2 = q2.minus(q0).norm();
+      var v1 = q1.minus(q0).unit();
+      var v2 = q2.minus(q0).unit();
 
       var n = v1.cross(v2);
 
       var longDelta = q0.minus(origin).dot(n);
       var shortDelta = castVec.dot(n);
 
-      var q = origin.plus(d.times(longDelta / delta));
+      var q = origin.plus(castVec.times(longDelta / shortDelta));
 
       // todo: if this doesn't work jim has a different method
-      var littleH = q.minus(q0).dot(v2.perp());
-      var bigH = q1.minus(q0).dot(v2.perp());
+      var littleH = q.minus(q0).dot(v2.cross(n));
+      var bigH = q1.minus(q0).dot(v2.cross(n));
 
       var alpha1 = littleH / bigH;
 
       // computer alpha2
-      var littleH = q.minus(q0).dot(v1.perp());
-      var bigH = q2.minus(q0).dot(v1.perp());
+      var littleH = q.minus(q0).dot(v1.cross(n));
+      var bigH = q2.minus(q0).dot(v1.cross(n));
 
       var alpha2 = littleH / bigH;
 
@@ -364,13 +364,13 @@ function rayCast(p, depth, objects) {
         var depthQ = q0.z + alpha1 * (q1.z - q0.z) + alpha2 * (q2.z - q0.z);
         if (depthQ < depth) {
           // found a point closer to the origin
-          return False;
+          return false;
         }
       }
     }
   }
 
-  return True;
+  return true;
 }
 
 class SceneCamera {
