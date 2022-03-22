@@ -1,5 +1,15 @@
 # Walk Thru It :footprints:
 
+Riley Shahar and Aria Killebrew Bruehl
+Computer Graphics, Reed College
+
+## Running Our Code
+
+To run our code and generate your flip book:
+1. Download this repo
+2. Navigate to the repo on your machine and enter the command `open walk-thru-it.html` to open the program locally
+3. Place items in the scene as desired
+4. Click `generate PDF` to render your flip book
 ## Program Overview
 
 ### Part 1: Camera Perspective :movie_camera:
