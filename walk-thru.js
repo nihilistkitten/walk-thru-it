@@ -311,13 +311,23 @@ class WalkThru {
             var mid = o0.combo(0.5, o1); // 3d midpoint
 
             if (!rayCast(mid, objects, camera.center)) {
+              // lines that should be kept, drawn in red
               // draw line
               const proj0 = toPDFcoords(p0);
               const proj1 = toPDFcoords(p1);
 
               document.setLineWidth(0.1);
-              document.setDrawColor(25, 25, 25);
+              document.setDrawColor(256, 0, 0);
               document.line(proj0.x, proj0.y, proj1.x, proj1.y);
+            } else {
+              // lines that should be excluded, drawn in blue
+              const proj0 = toPDFcoords(p0);
+              const proj1 = toPDFcoords(p1);
+
+              document.setLineWidth(0.1);
+              document.setDrawColor(0, 0, 256);
+              document.line(proj0.x, proj0.y, proj1.x, proj1.y);
+
             }
           }
         }
