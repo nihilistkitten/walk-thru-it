@@ -199,6 +199,17 @@ class WalkThru {
   }
 
   toPDF(document, startNewPage) {
+    // var q0 = new Point3d(0.0, 0.0, 2.0);
+    // var q1 = new Point3d(0.0, 1.0, 2.0);
+    // var q2 = new Point3d(1.0, 0.0, 2.0);
+    // var d = new Point3d(1.0, 1.0, 2.0);
+    // var origin = new Point3d(0.0, 0.0, 0.0);
+
+    // var castVec = d.minus(origin);
+    // var depth = castVec.norm();
+
+    // console.log(oneRayCast(q0, q1, q2, origin, castVec, depth));
+    // return;
     /*
      * Issue line/circle commands with a jsPDF object `document`
      * relying on the function `startNewPage` to add and set-up
@@ -280,31 +291,33 @@ class WalkThru {
 
           breakpoints.sort();
 
-          const dp0 = p0map.depth;
-          const dp1 = p1map.depth;
+          const op0 = p0map.point;
+          const op1 = p1map.point;
 
           var p0;
           var p1 = pp0;
 
-          var d0;
-          var d1 = dp0;
+          var o0;
+          var o1 = op0;
 
           for (var i = 1; i < breakpoints.length; i++) {
             p0 = p1;
             p1 = pp0.combo(breakpoints[i], pp1);
 
-            d0 = d1;
-            // depth at breakpoint i
-            d1 = (dp0 * breakpoints[i] + dp1 * (1 - breakpoints[i])) / 2;
+            o0 = o1;
+            // original point at breakpoint i
+            o1 = op0.combo(breakpoints[i], op1);
 
-            var mid = p0.combo(0.5, p1);
-            var depth = (d0 + d1) / 2;
+            var mid = o0.combo(0.5, o1); // 3d midpoint
 
-            if (rayCast(mid, depth, objects)) {
+            if (rayCast(mid, objects, camera.center)) {
               // draw line
+              const proj0 = toPDFcoords(p0);
+              const proj1 = toPDFcoords(p1);
+
               document.setLineWidth(0.1);
               document.setDrawColor(25, 25, 25);
-              document.line(p0.x, p0.y, p1.x, p1.y);
+              document.line(proj0.x, proj0.y, proj1.x, proj1.y);
             }
           }
         }
@@ -315,62 +328,88 @@ class WalkThru {
 
 // return whether a face intersects a ray casted from the origin through
 // (px, py, 1) with smaller depth
-function rayCast(p, depth, objects) {
-  var p3d = new Point3d(p.x, p.y, 1);
-  var origin = new Point3d(0, 0, 0);
-  var castVec = origin.minus(p3d);
+function rayCast(p, objects, origin) {
+  var castVec = p.minus(origin);
+  var depth = castVec.norm();
 
   for (let object of objects) {
     for (let face of object.allFaces()) {
+      // get 3d vertices of triangle
       var q0 = face.vertex(0, object).position;
       var q1 = face.vertex(1, object).position;
       var q2 = face.vertex(2, object).position;
 
-      var v1 = q1.minus(q0).unit();
-      var v2 = q2.minus(q0).unit();
-
-      var n = v1.cross(v2);
-
-      var longDelta = q0.minus(origin).dot(n);
-      var shortDelta = castVec.dot(n);
-
-      var q = origin.plus(castVec.times(longDelta / shortDelta));
-
-      // todo: if this doesn't work jim has a different method
-      var littleH = q.minus(q0).dot(v2.cross(n));
-      var bigH = q1.minus(q0).dot(v2.cross(n));
-
-      var alpha1 = littleH / bigH;
-
-      // computer alpha2
-      var littleH = q.minus(q0).dot(v1.cross(n));
-      var bigH = q2.minus(q0).dot(v1.cross(n));
-
-      var alpha2 = littleH / bigH;
-
-      var alpha0 = 1 - (alpha1 + alpha2);
-
-      if (
-        alpha0 > 0 &&
-        alpha0 < 1 &&
-        alpha1 > 0 &&
-        alpha1 < 1 &&
-        alpha2 > 0 &&
-        alpha2 < 1
-      ) {
-        // the intersection exists
-
-        // compute interpolated depth
-        var depthQ = q0.z + alpha1 * (q1.z - q0.z) + alpha2 * (q2.z - q0.z);
-        if (depthQ < depth) {
-          // found a point closer to the origin
-          return false;
-        }
+      if (!oneRayCast(q0, q1, q2, origin, castVec, depth)) {
+        return false;
       }
     }
   }
 
   return true;
+}
+
+// check if q0, q1, q2 intersects castVec at a smaller depth
+// return true if point should still be rendered, false if there's obscuration
+function oneRayCast(q0, q1, q2, origin, castVec, depth) {
+  // basis for the triangle
+  var v1 = q1.minus(q0).unit();
+  var v2 = q2.minus(q0).unit();
+
+  // 1. compute intersection with plane
+
+  // unit normal to the triangle
+  // unit because v1 and v2 are unit
+  var n = v1.cross(v2);
+
+  // component of vector to triangle vertex normal to Q plane
+  var longDelta = q0.minus(origin).dot(n);
+  // component of cast vector normal to Q plane
+  var shortDelta = castVec.dot(n);
+  if (shortDelta == 0) {
+    // we're casting parallel to the plane of the face, no way there's an intersection
+    return true;
+  }
+
+  // intersection with the Q plane
+  var q = origin.plus(castVec.times(longDelta / shortDelta));
+
+  // 2. ensure intersection is valid
+
+  var v = q.minus(q0).unit();
+
+  // taking the dot product instead of norm to preserve sign
+  var littleH = q.minus(q0).dot(v1);
+  var bigH = q1.minus(q0).norm();
+  var alpha1 = littleH / bigH;
+
+  var littleH = q.minus(q0).dot(v2);
+  var bigH = q2.minus(q0).norm();
+  var alpha2 = littleH / bigH;
+
+  var alpha0 = 1 - (alpha1 + alpha2);
+
+  console.log("a0", alpha0);
+  console.log("a1", alpha1);
+  console.log("a2", alpha2);
+
+  if (
+    alpha0 < 0 ||
+    alpha0 > 1 ||
+    alpha1 < 0 ||
+    alpha1 > 1 ||
+    alpha2 < 0 ||
+    alpha2 > 1
+  ) {
+    // point is not obscured by the face
+    return true;
+  }
+
+  // 3. compare depth of point and face
+
+  var depthQ = origin.minus(q).norm(); // depth at the intersection point
+  console.log("depth", depth);
+  console.log("depthQ", depthQ);
+  return depthQ > depth;
 }
 
 class SceneCamera {
