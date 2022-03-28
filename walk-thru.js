@@ -47,6 +47,8 @@
 const MINIMUM_PLACEMENT_SCALE = 0.1; // Smallest object we can place.
 const EPSILON = 0.00000001;
 
+var CURR_OBJ = 0;
+
 class Shot {
   constructor(position0, direction0) {
     this.position = position0;
@@ -231,28 +233,34 @@ class WalkThru {
 
     // Make all the scene objects from their placements.
 
-    const placement1 = new Placement("triangle", new Point3d(2.0, 1.0, 0.0));
-    placement1.scale = 0.5;
-    const prototype1 = gObjectsLibrary.get(placement1.name);
-    const object1 = new SceneObject(prototype1, placement1);
+    // const placement1 = new Placement("triangle", new Point3d(2.0, 1.0, 0.0));
+    // placement1.scale = 0.5;
+    // const prototype1 = gObjectsLibrary.get(placement1.name);
+    // const object1 = new SceneObject(prototype1, placement1);
 
-    const placement2 = new Placement("triangle", new Point3d(2.0, 1.2, 0.0));
-    placement2.scale = 0.5;
-    const prototype2 = gObjectsLibrary.get(placement2.name);
-    const object2 = new SceneObject(prototype2, placement2);
+    // const placement2 = new Placement("triangle", new Point3d(2.0, 1.2, 0.0));
+    // placement2.scale = 0.5;
+    // const prototype2 = gObjectsLibrary.get(placement2.name);
+    // const object2 = new SceneObject(prototype2, placement2);
 
     // const placement3 = new Placement("triangle", new Point3d(1.9, 0.8, 0.0));
     // placement3.scale = 0.3;
     // const prototype3 = gObjectsLibrary.get(placement3.name);
     // const object3 = new SceneObject(prototype3, placement3);
 
-    const placement4 = new Placement("triangle", new Point3d(1.9, 1.3, 0.9));
-    placement4.scale = 0.4;
-    const prototype4 = gObjectsLibrary.get(placement4.name);
-    const object4 = new SceneObject(prototype4, placement4);
+    // const placement4 = new Placement("triangle", new Point3d(1.9, 1.3, 0.9));
+    // placement4.scale = 0.4;
+    // const prototype4 = gObjectsLibrary.get(placement4.name);
+    // const object4 = new SceneObject(prototype4, placement4);
 
-    const objects = [object1, object2, object4];
+    // const objects = [object1, object2, object4];
 
+    const objects = [];
+    for (let placement of this.placements) {
+      const prototype = gObjectsLibrary.get(placement.name);
+      const object = new SceneObject(prototype, placement);
+      objects.push(object);
+    }
     //
     // Render each page of the walk-through.
     //
@@ -262,13 +270,9 @@ class WalkThru {
 
       // Compute projected vertex information and draw the lines of
       // each edge.
-      var i = 0;
       for (let object of objects) {
         // Project the vertices of this object.
-        i++;
-        if (i === 2) {
-          console.log("object 2");
-        }
+        CURR_OBJ++;
         let pvs = object.projectVertices(camera);
 
         // Draw each edge, projected, within the PDF.
@@ -284,10 +288,10 @@ class WalkThru {
 
           const pp0 = p0map.projection;
           const pp1 = p1map.projection;
-          if (i === 2) {
-            console.log("p0", pp0);
-            console.log("p1", pp1);
-          }
+          // if (i === 2) {
+          //   console.log("p0", pp0);
+          //   console.log("p1", pp1);
+          // }
 
           var breakpoints = [0, 1];
 
@@ -353,15 +357,6 @@ class WalkThru {
               document.setLineWidth(0.1);
               document.setDrawColor(256, 0, 0);
               document.line(proj0.x, proj0.y, proj1.x, proj1.y);
-            } else {
-              // lines that should be excluded, drawn in blue
-              const proj0 = toPDFcoords(p0);
-              const proj1 = toPDFcoords(p1);
-
-              document.setLineWidth(0.1);
-              document.setDrawColor(0, 0, 256);
-              document.line(proj0.x, proj0.y, proj1.x, proj1.y);
-
             }
           }
         }
@@ -370,10 +365,10 @@ class WalkThru {
   }
 }
 
-// return whether a face intersects a ray casted from the origin through p with
+// return whether a face intersects a ray casted from the center through p with
 // smaller depth
-function rayCast(p, objects, origin) {
-  var castVec = p.minus(origin);
+function rayCast(p, objects, center) {
+  var castVec = p.minus(center);
   var depth = castVec.norm();
 
   for (let object of objects) {
@@ -383,10 +378,14 @@ function rayCast(p, objects, origin) {
       var q1 = face.vertex(1, object).position;
       var q2 = face.vertex(2, object).position;
 
-      if (oneRayCast(q0, q1, q2, origin, castVec, depth)) {
+      if (oneRayCast(q0, q1, q2, center, castVec, depth)) {
         // console.log("triangle: ", q0, q1, q2);
         // console.log("castVec: ", castVec);
         // console.log("depth: ", depth);
+        // if (CURR_OBJ === 2) {
+        //   console.log("depth", out[1]);
+        //   console.log("depthQ", out[2]);
+        // }
         return true;
       }
     }
@@ -396,7 +395,7 @@ function rayCast(p, objects, origin) {
 }
 
 // check if q0, q1, q2 intersects castVec at a smaller depth
-function oneRayCast(q0, q1, q2, origin, castVec, depth) {
+function oneRayCast(q0, q1, q2, center, castVec, depth) {
   // basis for the triangle
   var v1 = q1.minus(q0).unit();
   var v2 = q2.minus(q0).unit();
@@ -408,7 +407,7 @@ function oneRayCast(q0, q1, q2, origin, castVec, depth) {
   var n = v1.cross(v2);
 
   // component of vector to triangle vertex normal to Q plane
-  var longDelta = q0.minus(origin).dot(n);
+  var longDelta = q0.minus(center).dot(n);
   // component of cast vector normal to Q plane
   var shortDelta = castVec.dot(n);
   if (shortDelta == 0) {
@@ -417,7 +416,7 @@ function oneRayCast(q0, q1, q2, origin, castVec, depth) {
   }
 
   // intersection with the Q plane
-  var q = origin.plus(castVec.times(longDelta / shortDelta));
+  var q = center.plus(castVec.times(longDelta / shortDelta));
 
   // 2. ensure intersection is valid
 
@@ -438,12 +437,12 @@ function oneRayCast(q0, q1, q2, origin, castVec, depth) {
   // console.log("a2", alpha2);
 
   if (
-    alpha0 < 0 ||
-    alpha0 > 1 ||
-    alpha1 < 0 ||
-    alpha1 > 1 ||
-    alpha2 < 0 ||
-    alpha2 > 1
+    alpha0 <= 0 ||
+    alpha0 >= 1 ||
+    alpha1 <= 0 ||
+    alpha1 >= 1 ||
+    alpha2 <= 0 ||
+    alpha2 >= 1
   ) {
     // point is not obscured by the face
     return false;
@@ -451,11 +450,13 @@ function oneRayCast(q0, q1, q2, origin, castVec, depth) {
 
   // 3. compare depth of point and face
 
-  var depthQ = q.minus(origin).norm(); // depth at the intersection point
+  var depthQ = q.minus(center).norm(); // depth at the intersection point
   // console.log("depth", depth);
   // console.log("depthQ", depthQ);
   // in this case Q does obscure the point
-  return depthQ < depth;
+  // return [depthQ < depth, alpha0, alpha1, alpha2];
+  // return [depthQ > depth, depthQ, depth];
+  return depthQ > depth;
 }
 
 class SceneCamera {
@@ -494,6 +495,9 @@ class SceneCamera {
     // Compute a 2D projected point and its depth.
     var pointAsVec = aPoint.minus(this.center);
     var depth = this.into.dot(pointAsVec);
+    // ratio between depth of p and depth of o is guaranteed to be exactly
+    // depth, because o has into component 1. so we can just scale the point by
+    // depth via similar triangles.
     var projection = this.center.plus(pointAsVec.div(depth));
 
     var origin = this.center.plus(this.into);
@@ -504,7 +508,6 @@ class SceneCamera {
     const result = {
       point: aPoint,
       projection: new Point2d(projectionX, projectionY),
-      distance: depth,
     };
 
     return result;
