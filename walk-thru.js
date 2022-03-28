@@ -229,15 +229,29 @@ class WalkThru {
       cameras.push(camera);
     }
 
-    //
     // Make all the scene objects from their placements.
-    //
-    const objects = [];
-    for (let placement of this.placements) {
-      const prototype = gObjectsLibrary.get(placement.name);
-      const object = new SceneObject(prototype, placement);
-      objects.push(object);
-    }
+
+    const placement1 = new Placement("triangle", new Point3d(2.0, 1.0, 0.0));
+    placement1.scale = 0.5;
+    const prototype1 = gObjectsLibrary.get(placement1.name);
+    const object1 = new SceneObject(prototype1, placement1);
+
+    const placement2 = new Placement("triangle", new Point3d(2.0, 1.2, 0.0));
+    placement2.scale = 0.5;
+    const prototype2 = gObjectsLibrary.get(placement2.name);
+    const object2 = new SceneObject(prototype2, placement2);
+
+    // const placement3 = new Placement("triangle", new Point3d(1.9, 0.8, 0.0));
+    // placement3.scale = 0.3;
+    // const prototype3 = gObjectsLibrary.get(placement3.name);
+    // const object3 = new SceneObject(prototype3, placement3);
+
+    const placement4 = new Placement("triangle", new Point3d(1.9, 1.3, 0.9));
+    placement4.scale = 0.4;
+    const prototype4 = gObjectsLibrary.get(placement4.name);
+    const object4 = new SceneObject(prototype4, placement4);
+
+    const objects = [object1, object2, object4];
 
     //
     // Render each page of the walk-through.
@@ -248,8 +262,13 @@ class WalkThru {
 
       // Compute projected vertex information and draw the lines of
       // each edge.
+      var i = 0;
       for (let object of objects) {
         // Project the vertices of this object.
+        i++;
+        if (i === 2) {
+          console.log("object 2");
+        }
         let pvs = object.projectVertices(camera);
 
         // Draw each edge, projected, within the PDF.
@@ -265,6 +284,10 @@ class WalkThru {
 
           const pp0 = p0map.projection;
           const pp1 = p1map.projection;
+          if (i === 2) {
+            console.log("p0", pp0);
+            console.log("p1", pp1);
+          }
 
           var breakpoints = [0, 1];
 
@@ -308,6 +331,17 @@ class WalkThru {
             // original point at breakpoint i
             o1 = op0.combo(breakpoints[i], op1);
 
+            // // draw breakpoints
+            // var pbp = toPDFcoords(p1);
+            // document.setFillColor(255, 0, 0);
+            // document.circle(pbp.x, pbp.y, 0.35, "F");
+
+            // // draw midpoints
+            // var mp = p0.combo(0.5, p1);
+            // var pmp = toPDFcoords(mp);
+            // document.setFillColor(0, 255, 0);
+            // document.circle(pmp.x, pmp.y, 0.35, "F");
+
             var mid = o0.combo(0.5, o1); // 3d midpoint
 
             if (!rayCast(mid, objects, camera.center)) {
@@ -340,9 +374,9 @@ function rayCast(p, objects, origin) {
       var q2 = face.vertex(2, object).position;
 
       if (oneRayCast(q0, q1, q2, origin, castVec, depth)) {
-        console.log("triangle: ", q0, q1, q2);
-        console.log("castVec: ", castVec);
-        console.log("depth: ", depth);
+        // console.log("triangle: ", q0, q1, q2);
+        // console.log("castVec: ", castVec);
+        // console.log("depth: ", depth);
         return true;
       }
     }

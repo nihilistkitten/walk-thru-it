@@ -1,10 +1,11 @@
 <!doctype html>
 <html lang="en">
-  <head>
-    <meta charset="utf-8">
-    <title>walk thru it</title>
-    
-    <script id="glsl/vs-uniform-color.c" type="x-shader/x-vertex">
+
+<head>
+	<meta charset="utf-8">
+	<title>walk thru it</title>
+
+	<script id="glsl/vs-uniform-color.c" type="x-shader/x-vertex">
 //
 // vs-uniform-color.c
 //
@@ -32,7 +33,7 @@ void main(void) {
   color = uColor;
 }
     </script>
-    <script id="glsl/vs-varying-color.c" type="x-shader/x-vertex">
+	<script id="glsl/vs-varying-color.c" type="x-shader/x-vertex">
 //
 // vs-varying-color.c
 //
@@ -60,7 +61,7 @@ void main(void) {
   color = aVertexColor;
 }
     </script>
-    <script id="glsl/fs-color.c" type="x-shader/x-fragment">
+	<script id="glsl/fs-color.c" type="x-shader/x-fragment">
 //
 // fs-color.c
 //
@@ -75,7 +76,7 @@ void main(void) {
   gl_FragColor = color;
 }
     </script>
-    <script id="glsl/vs-uniform-material.c" type="x-shader/x-vertex">
+	<script id="glsl/vs-uniform-material.c" type="x-shader/x-vertex">
 //
 // vs-uniform-material.c
 //
@@ -118,7 +119,7 @@ void main() {
   gl_Position = uProjectionMatrix * uModelViewMatrix * aVertexPosition;
 }
     </script>
-    <script id="glsl/vs-varying-material.c" type="x-shader/x-vertex">
+	<script id="glsl/vs-varying-material.c" type="x-shader/x-vertex">
 //
 // vs-varying-material.c
 //
@@ -162,7 +163,7 @@ void main() {
     
 }
     </script>
-    <script id="glsl/fs-phong.c" type="x-shader/x-fragment">
+	<script id="glsl/fs-phong.c" type="x-shader/x-fragment">
 //
 // fs-phong.c
 //
@@ -233,7 +234,13 @@ void main() {
   }
 }
     </script>
-    <script id="cube.obj" type="text/html">
+	<script id="triangle.obj" type="text/html">
+v 0.0 0.0 0.0
+v 0.0 0.0 1.0
+v 1.0 0.0 0.0
+f 1 2 3
+    </script>
+	<script id="cube.obj" type="text/html">
 v -1.0 -1.0 -1.0
 v -1.0 -1.0 1.0
 v -1.0 1.0 -1.0
@@ -255,7 +262,7 @@ f 1 6 2
 f 2 6 8
 f 2 8 4
     </script>
-    <script id="sandal.obj" type="text/html">
+	<script id="sandal.obj" type="text/html">
 v 2.275656 0.254170 -0.589662
 v 2.045461 0.277858 -0.559827
 v 1.543314 0.430955 -0.485060
@@ -6515,7 +6522,7 @@ f 2374 2482 2483 2372
 # 3196 elements
     </script>
 
-    <script id="lamp.obj" type="text/html">
+	<script id="lamp.obj" type="text/html">
 v 0.000000 8.407028 0.000000
 v 0.000000 8.380042 -0.204985
 v 0.053054 8.380042 -0.198000
@@ -15374,7 +15381,7 @@ f 4146 4147 4436 4437
 f 4101 4116 4439
 # 4404 elements
     </script>
-    <script id="teapot.obj" type="text/html">
+	<script id="teapot.obj" type="text/html">
 v 7.0000 0.0000 12.0000
 v 4.9700 -4.9700 12.0000
 v 4.9811 -4.9811 12.4922
@@ -15641,7 +15648,7 @@ f 134/51/135 136/54/137 137/62/138 135/42/136
 f 121/52/122 109/25/110 123/56/124 136/54/137
 f 136/54/137 123/56/124 125/44/126 137/62/138
     </script>
-    <script id="bunny.obj" type="text/html">
+	<script id="bunny.obj" type="text/html">
 v -23.889854 -7.0286789 67.722076
 v -22.721935 -26.361109 64.221367
 v -22.557022 -7.8638768 60.116085
@@ -16084,7 +16091,7 @@ f 59// 73// 65//
 f 99// 68// 100//
 f 102// 99// 100//
     </script>
-    <script id="fox.obj" type="text/html">
+	<script id="fox.obj" type="text/html">
 v 42.693699 55.073746 83.118004
 v 45.793697 58.129745 75.270004
 v 46.152699 49.387741 76.674004
@@ -16652,8 +16659,8 @@ f 42// 18// 24//
 f 150// 137// 148//
 f 81// 82// 78//
 f 80// 81// 78//
-</script>    
-    <script id="soccer.obj" type="text/html">
+</script>
+	<script id="soccer.obj" type="text/html">
 v 0.80928 0.333333 0.525731
 v 0.5671 0.666667 0.525731
 v 0.216613 0.666667 0.742344
@@ -16831,53 +16838,55 @@ f 51 57 55
 f 51 59 57
 f 51 54 59
     </script>
-    <script>
-      var flipBookLibrary = [
-	  ["cube",false],
-	  ["bunny",false],
-	  ["teapot",false],
-	  ["soccer",false],
-	  ["fox",false],
-	  ["sandal",true], 
-	  ["lamp",true]];
-    </script>
-    
-    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/1.4.0/jspdf.min.js"></script>
-    
-    <script src="gl-matrix-min.js" defer></script>
-    <script src="gl.js" defer></script>
-    <script src="load-shaders.js" defer></script>
-    <script src="opengl.js" defer></script>
-    <script src="geometry-3d.js" defer></script>
-    <script src="geometry-2d.js" defer></script>
-    <script src="cg-object.js" defer></script>
-    <script src="walk-thru.js" defer></script>
-    <script src="flip-book.js" defer></script>
-  </head>
+	<script>
+		var flipBookLibrary = [
+			["triangle", false],
+			["cube", false],
+			["bunny", false],
+			["teapot", false],
+			["soccer", false],
+			["fox", false],
+			["sandal", true],
+			["lamp", true]];
+	</script>
 
-  <body>
-    <canvas id="glcanvas" width="800" height="300"></canvas><br>
-    <font face="monospace">
-    Objects:
-    <button onClick="chooseObject('bunny')">bunny</button>
-    <button onClick="chooseObject('teapot')">teapot</button>
-    <button onClick="chooseObject('cube')">cube</button>
-    <button onClick="chooseObject('soccer')">soccer</button>
-    <button onClick="chooseObject('fox')">fox</button>
-    <button onClick="chooseObject('sandal')">sandal</button>
-    <button onClick="chooseObject('lamp')">lamp</button>
-    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-    <button onClick="makePDF()">to PDF</button>
-    <br>
-    <br>
-   Left clicks edit the scene. Drag objects to resize them. Remove with (x).<br>
-    Middle clicks place camera shots (or SHIFT-clicks).<br>
-    Drag the camera view to change the shot.<br>
-    Walk through each shot with (i/o). Remove shots with (p).<br>
- 
-  </body>
+	<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/1.4.0/jspdf.min.js"></script>
+
+	<script src="gl-matrix-min.js" defer></script>
+	<script src="gl.js" defer></script>
+	<script src="load-shaders.js" defer></script>
+	<script src="opengl.js" defer></script>
+	<script src="geometry-3d.js" defer></script>
+	<script src="geometry-2d.js" defer></script>
+	<script src="cg-object.js" defer></script>
+	<script src="walk-thru.js" defer></script>
+	<script src="flip-book.js" defer></script>
+</head>
+
+<body>
+	<canvas id="glcanvas" width="800" height="300"></canvas><br>
+	<font face="monospace">
+		Objects:
+		<button onClick="chooseObject('bunny')">bunny</button>
+		<button onClick="chooseObject('teapot')">teapot</button>
+		<button onClick="chooseObject('cube')">cube</button>
+		<button onClick="chooseObject('soccer')">soccer</button>
+		<button onClick="chooseObject('fox')">fox</button>
+		<button onClick="chooseObject('sandal')">sandal</button>
+		<button onClick="chooseObject('lamp')">lamp</button>
+		&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+		&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+		&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+		&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+		&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+		<button onClick="makePDF()">to PDF</button>
+		<br>
+		<br>
+		Left clicks edit the scene. Drag objects to resize them. Remove with (x).<br>
+		Middle clicks place camera shots (or SHIFT-clicks).<br>
+		Drag the camera view to change the shot.<br>
+		Walk through each shot with (i/o). Remove shots with (p).<br>
+
+</body>
+
 </html>
