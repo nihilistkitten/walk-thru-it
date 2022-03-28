@@ -310,7 +310,7 @@ class WalkThru {
 
             var mid = o0.combo(0.5, o1); // 3d midpoint
 
-            if (rayCast(mid, objects, camera.center)) {
+            if (!rayCast(mid, objects, camera.center)) {
               // draw line
               const proj0 = toPDFcoords(p0);
               const proj1 = toPDFcoords(p1);
@@ -326,8 +326,8 @@ class WalkThru {
   }
 }
 
-// return whether a face intersects a ray casted from the origin through
-// (px, py, 1) with smaller depth
+// return whether a face intersects a ray casted from the origin through p with
+// smaller depth
 function rayCast(p, objects, origin) {
   var castVec = p.minus(origin);
   var depth = castVec.norm();
@@ -339,17 +339,19 @@ function rayCast(p, objects, origin) {
       var q1 = face.vertex(1, object).position;
       var q2 = face.vertex(2, object).position;
 
-      if (!oneRayCast(q0, q1, q2, origin, castVec, depth)) {
-        return false;
+      if (oneRayCast(q0, q1, q2, origin, castVec, depth)) {
+        console.log("triangle: ", q0, q1, q2);
+        console.log("castVec: ", castVec);
+        console.log("depth: ", depth);
+        return true;
       }
     }
   }
 
-  return true;
+  return false;
 }
 
 // check if q0, q1, q2 intersects castVec at a smaller depth
-// return true if point should still be rendered, false if there's obscuration
 function oneRayCast(q0, q1, q2, origin, castVec, depth) {
   // basis for the triangle
   var v1 = q1.minus(q0).unit();
@@ -367,7 +369,7 @@ function oneRayCast(q0, q1, q2, origin, castVec, depth) {
   var shortDelta = castVec.dot(n);
   if (shortDelta == 0) {
     // we're casting parallel to the plane of the face, no way there's an intersection
-    return true;
+    return false;
   }
 
   // intersection with the Q plane
@@ -377,7 +379,6 @@ function oneRayCast(q0, q1, q2, origin, castVec, depth) {
 
   var v = q.minus(q0).unit();
 
-  // taking the dot product instead of norm to preserve sign
   var littleH = q.minus(q0).dot(v1);
   var bigH = q1.minus(q0).norm();
   var alpha1 = littleH / bigH;
@@ -388,9 +389,9 @@ function oneRayCast(q0, q1, q2, origin, castVec, depth) {
 
   var alpha0 = 1 - (alpha1 + alpha2);
 
-  console.log("a0", alpha0);
-  console.log("a1", alpha1);
-  console.log("a2", alpha2);
+  // console.log("a0", alpha0);
+  // console.log("a1", alpha1);
+  // console.log("a2", alpha2);
 
   if (
     alpha0 < 0 ||
@@ -401,15 +402,16 @@ function oneRayCast(q0, q1, q2, origin, castVec, depth) {
     alpha2 > 1
   ) {
     // point is not obscured by the face
-    return true;
+    return false;
   }
 
   // 3. compare depth of point and face
 
-  var depthQ = origin.minus(q).norm(); // depth at the intersection point
-  console.log("depth", depth);
-  console.log("depthQ", depthQ);
-  return depthQ > depth;
+  var depthQ = q.minus(origin).norm(); // depth at the intersection point
+  // console.log("depth", depth);
+  // console.log("depthQ", depthQ);
+  // in this case Q does obscure the point
+  return depthQ < depth;
 }
 
 class SceneCamera {
