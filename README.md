@@ -58,3 +58,13 @@ which seemed to be successful.
 There are also several pieces of debugging code commented out; for example,
 displaying "obscured" lines in red instead of not displaying them, displaying
 the midpoints and intersection points (these were correct), etc.
+
+### Addendum: Performance Optimizations
+
+At some point, we tried to implement this with a priority queue, as well as
+faster linear algebraic intersection calculations, to try to make the rendering
+faster. This work is saved in a separate branch. It didn't work, likely because
+of the same issues we still have with part four, and we chose to simplify it in
+order to make it easier to debug. As a result, the current implementation does
+not use the performance optimizations, but instead uses the geometric approach
+we've discussed in class.
