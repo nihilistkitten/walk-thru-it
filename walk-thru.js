@@ -232,6 +232,12 @@ class WalkThru {
     }
 
     // Make all the scene objects from their placements.
+    const objects = [];
+    for (let placement of this.placements) {
+      const prototype = gObjectsLibrary.get(placement.name);
+      const object = new SceneObject(prototype, placement);
+      objects.push(object);
+    }
 
     // const placement1 = new Placement("triangle", new Point3d(2.0, 1.0, 0.0));
     // placement1.scale = 0.5;
@@ -254,13 +260,6 @@ class WalkThru {
     // const object4 = new SceneObject(prototype4, placement4);
 
     // const objects = [object1, object2, object4];
-
-    const objects = [];
-    for (let placement of this.placements) {
-      const prototype = gObjectsLibrary.get(placement.name);
-      const object = new SceneObject(prototype, placement);
-      objects.push(object);
-    }
     //
     // Render each page of the walk-through.
     //
@@ -335,6 +334,17 @@ class WalkThru {
             // original point at breakpoint i
             o1 = op0.combo(breakpoints[i], op1);
 
+            // var mid2d = p0.combo(0.5, p1); // 3d midpoint
+            // calculation of original breakpoint
+
+            // var x3d =
+            //   camera.center.x + camera.into.x + camera.right.x * mid2d.x;
+            // var y3d =
+            //   camera.center.y + camera.into.y + camera.right.y * mid2d.x;
+            // var z3d = camera.center.z + camera.into.z + mid2d.y;
+
+            // var projectedMid3d = new Point3d(x3d, y3d, z3d);
+
             // // draw breakpoints
             // var pbp = toPDFcoords(p1);
             // document.setFillColor(255, 0, 0);
@@ -355,9 +365,16 @@ class WalkThru {
               const proj1 = toPDFcoords(p1);
 
               document.setLineWidth(0.1);
-              document.setDrawColor(256, 0, 0);
+              document.setDrawColor(25, 25, 25);
               document.line(proj0.x, proj0.y, proj1.x, proj1.y);
-            }
+            } /* else {
+              const proj0 = toPDFcoords(p0);
+              const proj1 = toPDFcoords(p1);
+
+              document.setLineWidth(0.1);
+              document.setDrawColor(255, 0, 0);
+              document.line(proj0.x, proj0.y, proj1.x, proj1.y);
+            } */
           }
         }
       }
@@ -454,9 +471,7 @@ function oneRayCast(q0, q1, q2, center, castVec, depth) {
   // console.log("depth", depth);
   // console.log("depthQ", depthQ);
   // in this case Q does obscure the point
-  // return [depthQ < depth, alpha0, alpha1, alpha2];
-  // return [depthQ > depth, depthQ, depth];
-  return depthQ > depth;
+  return depthQ < depth;
 }
 
 class SceneCamera {
